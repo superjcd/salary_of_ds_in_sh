@@ -1,5 +1,4 @@
 #-*-coding:utf-8-*-
-#the pages of hangzhou has a length about 10,shanghai has about 20
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 import re
@@ -23,14 +22,12 @@ for i in range(len(skilllist)):
 
 #convert two list into dict
 dict=dict(list(zip(skilllist,valuelist)))
-print(dict)
 
-
-#turn numeric strings into numeric ones and return an mean
+#a function for inserrting data into database
 def addtozlzp(company,salary,location,postdate,exp,degree,statistics,math,computer,information,finance,
               analysis,dataminning,monitoring,communication,customerbehavio,bigdata,excel,office,ppt,
               spss,r,sas,stata,python,java,hadoop,spark,hive,sql,url):
-    cur.execute("select * from zlzp_test where company=%s and salary=%s",(company,salary))
+    cur.execute("select * from zlzp_test where company=%s and salary=%s",(company,salary))#check if the data exists
     if cur.rowcount==0:
         cur.execute("insert into zlzp_test(company,salary,location,postdate,exp,degree,statistics,math,computer,information,finance,analysis,dataminning,monitoring,communication,customerbehavio,bigdata,excel,office,ppt,spss,r,sas,stata,python,java,hadoop,spark,hive,`sql`,url) value(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
                     (company,salary,location,postdate,exp,degree,statistics,math,computer,information,finance,analysis,dataminning,monitoring,communication,customerbehavio,bigdata,excel,office,ppt,spss,r,sas,stata,python,java,hadoop,spark,hive,sql,url))
@@ -38,6 +35,7 @@ def addtozlzp(company,salary,location,postdate,exp,degree,statistics,math,comput
     else:
         print("existed already")
 
+#turn numeric strings into numeric ones and return an mean
 def turntoint(A):
     A=re.findall("(\d+)",A,re.S)
     #A is a list contains numeric strs
@@ -52,7 +50,7 @@ def turntoint(A):
         avragenum=sum(list)/len(list)
         return(avragenum)
 
-#find patterns in the job discription and scroe
+#find patterns in the job discription and scroe 1 if found,else 0
 def findpattern(skilllist,jobdiscription):
     for skill in skilllist:
         re_len=len(re.findall(skill,jobdiscription,re.S))
@@ -60,7 +58,6 @@ def findpattern(skilllist,jobdiscription):
             dict[skill]=1
         else:
             dict[skill]=0
-
 
 
 def getcontent(url,i):
@@ -81,7 +78,7 @@ def getcontent(url,i):
             print(url)
             try:
                 html2=urlopen(url)
-            except HTTPError as e:
+            except HTTPError as e:                
                 continue
             bsobj2=BeautifulSoup(html2,'html.parser')
 
@@ -96,11 +93,10 @@ def getcontent(url,i):
             postdate=info_body[2].get_text().split("：")[1]
             exp=turntoint(info_body[4].get_text().split("：")[1])
             degree=info_body[5].get_text().split("：")[1]
-            #print(company,salary,location,postdate,exp,degree)
-
-            skills=bsobj2.find("div",{"class":"tab-inner-cont"}).get_text().strip("\n").strip(" ").lower()
-           #return skills
-           #score for each pattern if exist
+            
+                    #skills for pattern finder
+            skills=bsobj2.find("div",{"class":"tab-inner-cont"}).get_text().strip("\n").strip(" ").lower()                           
+            
             findpattern(skilllist,skills)
             #专业
             statistics=dict["统计学"]
@@ -116,22 +112,21 @@ def getcontent(url,i):
             communication=dict['沟通']
             customerbehavio=dict['客户行为']
             bigdata=dict['大数据']
-            #print(analysis,dataminning,monitoring,communication,customerbehavio,bigdata)
+            
             #office技能
             excel=dict['excel']
             office=dict['office']
             ppt=dict['ppt']
-            #print(excel,office,ppt)
-            #统计工具
+                        #统计工具
             spss=dict['spss']
             r=dict['r']
             sas=dict['sas']
             stata=dict['stata']
-            #print(spss,r,sas,stata)
+            
             #脚本语言
             python=dict['python']
             java=dict['java']
-            #print(python,java)
+          
             #大数据工具
             hadoop=dict['hadoop']
             spark=dict['spark']
@@ -146,4 +141,4 @@ def getcontent(url,i):
         i=i+1
         getcontent(nextpage,i)
           
-getcontent("http://sou.zhaopin.com/jobs/searchresult.ashx?jl=%E4%B8%8A%E6%B5%B7&kw=%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90&kt=3&isadv=0&sg=7c8c16e0a15f425091d69e7c31bf4445&p=8",1)
+getcontent("the first page(url)",1)
