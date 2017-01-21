@@ -1,9 +1,6 @@
----
-  title: "R Notebook"
-output: html_notebook
----
+
   #import data from mysql
-  ```{r}
+
 library(dplyr)
 library(ggplot2)
 mydb<-src_mysql(dbname="zlzp",host="127.0.0.1",user="root",password = "jcd0038")
@@ -11,11 +8,9 @@ mydb<-src_mysql(dbname="zlzp",host="127.0.0.1",user="root",password = "jcd0038")
 src_tbls(mydb)
 zlzp=tbl(mydb,"zlzp")
 zlzp=tbl_df(zlzp)
-zlzp#the column company encounter gash
-```
+zlzp#the column company encounter messy code
+
 #fix the messy code problem
-```{r}
-#fix the gash problem
 library(stringi)
 stri_enc_get()
 #GBK
@@ -26,11 +21,8 @@ zlzp$degree<-stri_conv(zlzp$degree,"UTF-8","GBK")
 zlzp$location<-stri_conv(zlzp$location,"UTF-8","GBK")
 zlzp
 #now is nice
-#plus:如果是read csv时遇到编码problem，可以使用readr的guess_encoding,和调整read-csv中的locale项
-```
-#clean & prepare data
-```{r}
 
+#clean & prepare data
 #move duplicated rows
 zlzp<-zlzp[!duplicated(zlzp),]
 nrow(zlzp)
@@ -41,10 +33,10 @@ zlzp<-separate(zlzp,location,c("area_big","area_small"),"-")
 ZLZP<-zlzp%>%
   filter(salary>4000)
 nrow(ZLZP)
-```
-#smmary the data
-```{r}
 
+
+
+#smmary the data
 ZLZP%>%
   select(salary,area_big)%>%
   group_by(area_big)%>%
@@ -52,9 +44,8 @@ ZLZP%>%
 ggplot(ZLZP,aes(salary,fill=area_big))+geom_density(alpha=0.4,na.rm = TRUE)+labs(fill="地区",x="工资（元/月）")+xlim(4000,40000)+theme(legend.position = c(0.9,0.8))
 #one obsevation out that range
 
-```
+
 #analys the data in shanghai 
-```{r}
 zlzp_sh<-ZLZP%>%
   filter(area_big=="上海")
 
@@ -67,9 +58,9 @@ zlzp_sh%>%
 
 ggplot(zlzp_sh,aes(exp,salary,color=degree))+geom_jitter(alpha=0.5,show.legend =FALSE,na.rm = TRUE)+geom_smooth(method="lm",se=FALSE,na.rm = TRUE)+ylim(0,40000)+xlab("工作经验（年）")+ylab("工资（元/月）")+labs(color="学历")
 
-```
+
 #公司分类
-```{r}
+
 
 zlzp_sh<-zlzp_sh%>%
   filter(id!=432)
@@ -93,10 +84,10 @@ zlzp_sh%>%
   group_by(company_type)%>%
   summarise(n=n(),mean.salary=mean(salary))%>%
   arrange(desc(mean.salary),n)
-```
+
 
 #save data file
-```{r}
+
 View(zlzp_sh)
 #id432 的一家公司月薪达到惊人的10万/月，而且其它条件也不高，应该是该公司的失误,把10000输成100000。为了不影响预测，把这项数据去掉
 
@@ -108,6 +99,6 @@ zlzp_sh_model<-zlzp_sh%>%
 save(zlzp_sh_model,file = "zlzp_sh_model.Rdata")
 save(zlzp_sh,file="H:/R projects/zlzp/zlzp.Rdata")
 
-```
+
 
 
