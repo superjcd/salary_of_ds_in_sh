@@ -47,7 +47,7 @@ ggplot(ZLZP,aes(salary,fill=area_big))+geom_density(alpha=0.4,na.rm = TRUE)+labs
 
 #analys the data in shanghai 
 zlzp_sh<-ZLZP%>%
-  filter(area_big=="上海")
+  filter(area_big=="上海",postdate<=as.Date("2017-01-13"))
 
 
 #不同工作经验/学位之间的工资比较
@@ -58,13 +58,19 @@ zlzp_sh%>%
 
 ggplot(zlzp_sh,aes(exp,salary,color=degree))+geom_jitter(alpha=0.5,show.legend =FALSE,na.rm = TRUE)+geom_smooth(method="lm",se=FALSE,na.rm = TRUE)+ylim(0,40000)+xlab("工作经验（年）")+ylab("工资（元/月）")+labs(color="学历")
 
+View(zlzp_sh)
+#id432 的一家公司月薪达到惊人的10万/月，而且其它条件也不高，应该是该公司的失误,把10000输成100000。为了不影响预测，把这项数据去掉
+
+zlzp_sh$degree<-as.factor(zlzp_sh$degree)
+zlzp_sh_model<-zlzp_sh%>%
+  filter(id!=432)%>%
+  select(-id,-company,-postdate,-area_big,-area_small,-url)
+
+save(zlzp_sh_model,file = "zlzp_sh_model.Rdata")
 
 #公司分类
-
-
 zlzp_sh<-zlzp_sh%>%
   filter(id!=432)
-
 
 zlzp_sh$company_type<-rep(NA,nrow(zlzp_sh))
 
@@ -85,18 +91,7 @@ zlzp_sh%>%
   summarise(n=n(),mean.salary=mean(salary))%>%
   arrange(desc(mean.salary),n)
 
-
 #save data file
-
-View(zlzp_sh)
-#id432 的一家公司月薪达到惊人的10万/月，而且其它条件也不高，应该是该公司的失误,把10000输成100000。为了不影响预测，把这项数据去掉
-
-zlzp_sh$degree<-as.factor(zlzp_sh$degree)
-zlzp_sh_model<-zlzp_sh%>%
-  filter(id!=432)%>%
-  select(-id,-company,-postdate,-area_big,-area_small,-url)
-
-save(zlzp_sh_model,file = "zlzp_sh_model.Rdata")
 save(zlzp_sh,file="H:/R projects/zlzp/zlzp.Rdata")
 
 
