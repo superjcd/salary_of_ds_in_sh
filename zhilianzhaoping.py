@@ -5,10 +5,10 @@ from urllib.request import urlopen
 import re
 import pymysql
 from urllib.error import HTTPError
-#import csv
+
 
 #creat a connection to mysql
-conn=pymysql.connect(host="127.0.0.1",port=3306,user="root",passwd="jcd0038",db="mysql",charset="utf8")
+conn=pymysql.connect(host="127.0.0.1",port=3306,user="root",passwd="***",db="mysql",charset="utf8")
 cur=conn.cursor()
 cur.execute("use zlzp")
 
@@ -145,5 +145,5 @@ def getcontent(url,i):
 
         i=i+1
         getcontent(nextpage,i)
-
+          
 getcontent("http://sou.zhaopin.com/jobs/searchresult.ashx?jl=%E4%B8%8A%E6%B5%B7&kw=%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90&kt=3&isadv=0&sg=7c8c16e0a15f425091d69e7c31bf4445&p=8",1)
